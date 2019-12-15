@@ -25,6 +25,14 @@ class CartCondition {
     public $parsedRawValue;
 
     /**
+     * Configuration to pass to ItemCollection
+     *
+     * @var
+     */
+    protected $config;
+
+
+    /**
      * @param array $args (name, type, target, value)
      * @throws InvalidConditionException
      */
@@ -40,6 +48,8 @@ class CartCondition {
         {
             $this->validate($this->args);
         }
+
+        $this->config = config('shopping_cart');
     }
 
     /**
@@ -173,7 +183,7 @@ class CartCondition {
             }
             else
             {
-                $value = Helpers::normalizePrice($conditionValue);
+                $value = Helpers::normalizePrice( $this->cleanValue($conditionValue) );
 
                 $this->parsedRawValue = $totalOrSubTotalOrPrice * ($value / 100);
 
@@ -199,7 +209,7 @@ class CartCondition {
             }
             else
             {
-                $this->parsedRawValue = Helpers::normalizePrice($conditionValue);
+                $this->parsedRawValue = Helpers::normalizePrice( $this->cleanValue($conditionValue) );
 
                 $result = floatval($totalOrSubTotalOrPrice + $this->parsedRawValue);
             }
@@ -250,6 +260,8 @@ class CartCondition {
      */
     protected function cleanValue($value)
     {
+        $value = Helpers::unformatNumber($value, $this->config['format_numbers'], $this->config);
+
         return str_replace(array('%','-','+'),'',$value);
     }
 

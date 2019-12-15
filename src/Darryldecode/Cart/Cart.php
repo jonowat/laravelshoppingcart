@@ -180,7 +180,7 @@ class Cart
         $item = $this->validate(array(
             'id' => $id,
             'name' => $name,
-            'price' => Helpers::normalizePrice($price),
+            'price' => Helpers::normalizePrice(Helpers::unformatNumber($price, $this->config['format_numbers'], $this->config)),
             'quantity' => $quantity,
             'attributes' => new ItemAttributeCollection($attributes),
             'conditions' => $conditions,
@@ -544,7 +544,7 @@ class Cart
         $cart = $this->getContent();
 
         $sum = $cart->sum(function ($item) {
-            return $item->getPriceSum();
+            return $item->getPriceSum(false);
         });
 
         return Helpers::formatValue(floatval($sum), $formatted, $this->config);
@@ -595,9 +595,10 @@ class Cart
     /**
      * the new total in which conditions are already applied
      *
+     * @param bool $formatted
      * @return float
      */
-    public function getTotal()
+    public function getTotal($formatted = true)
     {
         $subTotal = $this->getSubTotal(false);
 
@@ -613,7 +614,7 @@ class Cart
 
         // if no conditions were added, just return the sub total
         if (!$conditions->count()) {
-            return Helpers::formatValue($subTotal, $this->config['format_numbers'], $this->config);
+            return Helpers::formatValue($subTotal, $formatted, $this->config);
         }
 
         $conditions
@@ -626,7 +627,12 @@ class Cart
 
             });
 
-        return Helpers::formatValue($newTotal, $this->config['format_numbers'], $this->config);
+        return Helpers::formatValue($newTotal, $formatted, $this->config);
+    }
+
+    public function format($amount)
+    {
+        return Helpers::formatValue(floatval($amount), true, $this->config);
     }
 
     /**

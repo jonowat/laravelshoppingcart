@@ -17,7 +17,7 @@ class Helpers {
      */
     public static function normalizePrice($price)
     {
-        return (is_string($price)) ? floatval($price) : $price;
+        return is_string($price) ? floatval($price) : $price;
     }
 
     /**
@@ -69,10 +69,22 @@ class Helpers {
 
     public static function formatValue($value, $format_numbers, $config)
     {
+        $value = floatval($value);
         if($format_numbers && $config['format_numbers']) {
             return number_format($value, $config['decimals'], $config['dec_point'], $config['thousands_sep']);
         } else {
             return $value;
         }
+    }
+
+    public static function unformatNumber($value, $format_numbers, $config)
+    {
+        if($format_numbers){
+        return str_replace('[dec_point]', '.',
+                str_replace('[thousands_sep]', '', 
+                str_replace($config['dec_point'], '[dec_point]', 
+                str_replace($config['thousands_sep'], '[thousands_sep]', $value))));
+        }
+        return $value;
     }
 }

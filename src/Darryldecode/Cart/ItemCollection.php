@@ -32,14 +32,14 @@ class ItemCollection extends Collection {
     }
 
     /**
-     * get the sum of price
+     * get the sum of price formatted if configured
      *
+     * @param bool $formatted
      * @return mixed|null
      */
-    public function getPriceSum()
+    public function getPriceSum($formatted = true)
     {
-        return Helpers::formatValue($this->price * $this->quantity, $this->config['format_numbers'], $this->config);
-
+        return Helpers::formatValue($this->price * $this->quantity, $formatted, $this->config);
     }
 
     public function __get($name)
@@ -67,14 +67,22 @@ class ItemCollection extends Collection {
     }
 
     /**
-     * check if item has conditions
+     * Get all conditions
      *
-     * @return mixed|null
+     * @return CartConditionCollection|null
      */
     public function getConditions()
     {
-        if(! $this->hasConditions() ) return [];
-        return $this['conditions'];
+        return new CartConditionCollection( $this->hasConditions() ? $this['conditions'] : []);
+    }
+
+    /**
+     * Get condition by name.
+     */
+    public function getCondition($conditionName)
+    {
+        return $this->getConditions()
+            ->first(function($c) use ($conditionName) { return $c->getName() == $conditionName; });
     }
 
     /**
